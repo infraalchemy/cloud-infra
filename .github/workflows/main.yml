@@ -1,16 +1,29 @@
-name: Test Action
+
+name: GCP OIDC Test
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write   # 🔥 REQUIRED for OIDC
+
     steps:
-      - uses: actions/checkout@v3
-      - run: echo "It works!"
-      
-# trigger test
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account_email: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Test access
+        run: gcloud projects list
