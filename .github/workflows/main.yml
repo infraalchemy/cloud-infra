@@ -1,4 +1,3 @@
-
 name: GCP OIDC Test
 
 on:
@@ -11,7 +10,7 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write   # 🔥 REQUIRED for OIDC
+      id-token: write  # 🔥 REQUIRED for OIDC
 
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +19,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account_email: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
