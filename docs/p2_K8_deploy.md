@@ -1,4 +1,4 @@
-# Local Kubernetes Deployment Guide
+# Phase 2 Deployment Runbook: Local Kubernetes Deployment with KinD
 
 This guide documents the complete engineering process used to build, deploy, validate, and rebuild a local containerized Moodle environment. The entire architecture runs within a local Kubernetes cluster provisioned via KinD.
 
@@ -41,9 +41,8 @@ The deployment follows this sequence:
 
 ---
 
-# KinD Cluster Management
+# KinD Cluster Setup
 
-## Delete Existing Cluster
 
 Use when recreating the environment from a clean state.
 ```bash
@@ -62,7 +61,7 @@ docker ps -a | grep kind
 
 ---
 
-## Create Cluster and Configure Context
+## Create Cluster
 
 Create the local KinD cluster:
 
@@ -72,26 +71,27 @@ kind create cluster \
   --name lab
 ```
 
+
 Configure kubectl context:
 ```bash
 kind export kubeconfig --name lab
 ```
 
-Expected context:
-```text
-* kind-lab
-```
+	Expected context:
+	```text
+	* kind-lab
+	```
 
 Verify cluster nodes:
 ```bash
 kubectl get nodes
 ```
 
-Expected result:
-```text
-lab-control-plane
-lab-worker
-```
+	Expected result:
+	```text
+	lab-control-plane
+	lab-worker
+	```
 
 ---
 
@@ -200,6 +200,42 @@ kubectl exec deploy/nginx -- nginx -T | grep "server_name"
 
 ---
 
+## Verify DB exist
+
+Connect to DB:
+```bash
+ kubectl exec -it deploy/mysql -- mysql -u root -p
+ ```
+ SQL>
+  SHOW DATABASES;
+   	
+	
+	Expected output:
+	+--------------------+
+	| Database           |
+	+--------------------+
+	| information_schema |
+	| moodle             |
+	| mysql              |
+	| performance_schema |
+	| sys                |
+	+--------------------+	
+	5 rows in set (0.02 sec)	```
+	```
+ SQL>
+  USE moodle;
+  SELECT 1;
+
+---
+
+## Verify PHP Runtime Configuration
+
+Confirm Moodle PHP settings:
+```bash
+kubectl exec deploy/php -- php -i | grep -E "memory_limit|max_execution_time|max_input_vars"
+```
+---
+
 # Ingress Routing
 
 Deploy the ingress controller:
@@ -230,7 +266,6 @@ kubectl delete validatingwebhookconfiguration ingress-nginx-admission
 
 ---
 
-
 # Storage Verification
 
 Verify persistent volume claims:
@@ -247,7 +282,6 @@ This confirms that application workloads have successfully claimed the persisten
 
 ---
 
-
 # Localhost Access Verification
 
 After the Ingress controller and Moodle ingress rules are deployed, verify that the application is reachable:
@@ -263,57 +297,89 @@ Expected result:
 
 ---
 
-## Complete Moodle Web Setup
+# Moodle Web Installation
 
-Complete the Moodle installation wizard using the following values:
+Complete the Moodle installation wizard using the following sequence:
+
+**Choose Language**
+   - Select the installation language.
+
+**Confirm Paths**
+   - Verify the web address and Moodle data directory.
+
+**Choose Database Driver**
+   - Select the database type:
+     - MySQL / MariaDB
+
+**Database Settings**
+   - Enter the database configuration:
 
 | Setting | Value |
-|---------|-------|
-| Web Address | `http://localhost` |
-| Moodle Directory | `/var/www/html` |
-| Moodle Data Directory | `/moodledata` |
-| Database Type | MySQL |
-| Database Host | `mysql` |
-| Database Port | `3306` |
-| Database Name | `moodle` |
-| Database User | `<configured MySQL user>` |
-| Database Password | `<configured MySQL password>` |
-| Table Prefix | `mdl_` |
+| :--- | :--- |
+| **Web Address** | `http://localhost` |
+| **Moodle Directory** | `/var/www/html` |
+| **Moodle Data Directory** | `/var/www/moodledata` |
+| **Database Type** | `MySQL` |
+| **Database Host** | `mysql` |
+| **Database Port** | `3306` |
+| **Database Name** | `moodle` |
+| **Database User** | `<MYSQL_USER from .env>` |
+| **Database Password** | `<MYSQL_PASSWORD from .env>` |
+| **Table Prefix** | `mdl_` |
 
-### Moodle Table Prefix Note
+**Copyright Notice**
+   - Accept the Moodle GPL license agreement.
 
-Leave the table prefix as the default:
-```text
-mdl_
-```
+**Server Checks**
+   - Review PHP extensions and environment requirements.
+   - Continue once all required checks pass.
 
-The table prefix is added to Moodle database table names to identify tables belonging to this Moodle installation. For example, the default prefix `mdl_` creates tables such as `mdl_user` and `mdl_course`.
+**Installation**
+   - Allow Moodle to create the database tables and complete application initialization.
 
-After installation, verify:
+**Setup Administrator Account**
+   - Complete administrator configuration.
 
-- Moodle login page loads successfully.
-- Administrator login works.
-- Site Administration dashboard is accessible.
-- Moodle data remains available after completing setup.
+**Front Page Settings** 
+	- Configure your site’s name, short name, and provide a brief front-page description or welcome message.
+	
+	
+*Notes:*
+- *Retain the default Moodle database table prefix (`mdl_`) unless a custom schema strategy is intentionally required.*
 
 ---
 
-
-# Deployment Verification
-
-## Verify PHP Image and Data Persistence
+# Application Recovery and Data Persistence
 
 This test verifies that Kubernetes can recreate the PHP workload while maintaining Moodle application data stored on persistent storage.
+
+### Create Moodle Test Data
+
+Before deleting the PHP pod, create test data within Moodle:
+
+1. Log into Moodle as the administrator.
+2. Complete and save the administrator profile.
+3. Upload an administrator profile image.
+4. Create a test course:
+    ```text
+    Infrastructure Test Course
+    ```
+5. Upload a course image.
+6. Confirm both images render correctly before pod recreation.
+
+### Verify Current PHP Image
 
 Before deleting the pod, verify the current PHP deployment image:
 ```bash
 kubectl get deployment php -o jsonpath="{.spec.template.spec.containers[0].image}"
 ```
+	
+	Expected:
+	```text
+	extn-php:8.2
+	```
 
-Expected:
-```text
-extn-php:8.2
-```
+### Recreate the PHP Workload
 
 Delete the PHP pod:
 ```bash
@@ -325,50 +391,55 @@ Verify Kubernetes creates a replacement pod:
 kubectl get pods -w
 ```
 
-Example result:
-
-```text
-mysql-xxxxx   1/1   Running   0   4d4h
-nginx-xxxxx   1/1   Running   0   4d4h
-php-yyyyy     1/1   Running   0   84s
-```
+	Example result:
+	```text
+	mysql-xxxxx   1/1   Running   0   4d4h
+	nginx-xxxxx   1/1   Running   0   4d4h
+	php-yyyyy     1/1   Running   0   84s
+	```
 
 The new PHP pod name and recent age confirm Kubernetes recreated the workload.
+
+### Verify Application Availability
 
 Verify Moodle application files are still available:
 ```bash
 kubectl exec deploy/php -- ls /var/www/html
 ```
 
-Expected:
-```text
-Existing Moodle files are still present
-```
+	Expected:
+	```text
+	Existing Moodle files are still present
+	```
 
 Confirm the application is still accessible:
 ```text
 http://localhost
 ```
 
-Expected:
+### Validate Moodle Persistence
 
-- Moodle login page loads successfully.
-- Existing configuration is preserved.
-- Previously created Moodle data is available.
+After the replacement pod becomes available:
+
+1. Log back into Moodle.
+2. Confirm the administrator profile image is still displayed.
+3. Open `Infrastructure Test Course`.
+4. Confirm the course image is still displayed.
+5. Verify existing Moodle configuration and data remain available.
 
 This confirms:
 
-- Kubernetes recreated the PHP pod.
-- The replacement pod used the expected PHP image.
-- Persistent storage retained Moodle application data.
-- The complete application stack recovered successfully.# Environment Reset
+* Kubernetes recreated the PHP pod successfully.
+* The replacement pod used the expected PHP image.
+* Persistent storage retained Moodle application files.
+* Persistent storage retained Moodle uploaded content.
+* Moodle recovered without application reconfiguration.
 
 ---
 
 ## Destroy Environment
 
 Use when rebuilding the complete environment:
-
 ```bash
 kind delete cluster --name lab
 ```

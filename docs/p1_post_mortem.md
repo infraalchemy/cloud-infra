@@ -1,7 +1,6 @@
 # Infrastructure Migration Post-Mortem
 
-Deploying the infrastructure architecture onto Google Cloud Platform (GCP) from a fresh system account profile introduced several systemic challenges involving authorization states, platform security boundaries, shell context variables, and syntax truncation rules.
-
+Deploying the infrastructure architecture onto Google Cloud Platform (GCP) from a fresh system account profile introduced several challenges involving Terraform state management, project authorization, IAM permissions, shell environment context, and deployment configuration.
 ---
 
 ## 1. Terraform State File Conflicts
@@ -87,7 +86,7 @@ Refresh local Application Default Credentials (ADC)
 gcloud auth application-default login
 ```
 
-ADC allows tools such as Terraform and Google Cloud SDK integrations to authenticate API requests using the configured user account.
+Application Default Credentials (ADC) allow tools such as Terraform and Google Cloud SDK integrations to authenticate API requests using the configured user identity.
 
 ---
 
@@ -124,7 +123,7 @@ Identify the PHP-FPM container name:
 docker ps
 ```
 
-Force update the master administrator account password via terminal injection:
+Update the administrator account password using Moodle CLI tools:
 ```bash
 docker exec -it docker_php-fpm_1 php /var/www/html/admin/cli/reset_password.php --username=admin
 ```
@@ -158,20 +157,6 @@ location ~ [^/]\.php(/|\$) {
 
 ---
 
-## 8. Moodle Slash Arguments and Nginx Configuration
-
-* **The Problem:** Uploaded Moodle resources, including site images and course files, completely failed to render correctly across the user interface.
-
-* **The Cause:** Moodle uses slash arguments when serving files out of its storage directories. The Nginx PHP configuration block was not passing the required path information (`PATH_INFO`) down to the PHP-FPM processing engine.
-
-* **The Fix:** Updated the Nginx PHP location configuration block to explicitly include the required FastCGI parameters:
-```nginx
-fastcgi_param SCRIPT_FILENAME \(document_root\)fastcgi_script_name;
-fastcgi_param PATH_INFO \$fastcgi_path_info;
-```
-
----
-
 ## 8. Cloud VM Nginx Server Configuration
 
 * **The Problem:** Moodle was not responding correctly when accessed through the Google Cloud VM external IP address.
@@ -197,5 +182,12 @@ For production deployments using a registered domain name and HTTPS:
 ```nginx
 server_name moodle.company.com;
 ```
+---
 
-Production environments should also include SSL/TLS configuration and certificate management.
+# Lessons Learned and Future Validation
+
+The Moodle CLI tools provided an effective administrative recovery method when the web-based installation workflow could not complete. However, this was a recovery procedure and not a replacement for correcting the deployment architecture.
+
+Production deployments should avoid relying on direct IP-based access and instead use a stable hostname with HTTPS termination. The application URL, reverse proxy configuration, TLS settings, and external access path must remain consistent to ensure proper session validation.
+
+The Phase 3 Kubernetes deployment on Google Cloud Platform will be used to compare the behavior of the workload under a production-style architecture, including Kubernetes ingress, HTTPS, and domain-based access. The deployment will validate whether the `invalidsesskey` behavior was related to the external URL/security boundary introduced during the Docker Compose GCP deployment or was specific to the original deployment configuration.
