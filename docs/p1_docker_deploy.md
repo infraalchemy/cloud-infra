@@ -1,6 +1,9 @@
-# Phase 1 Deployment Runbook: Docker Compose Workload & Persistence Validation
+# Phase 1 Deployment Runbook: Docker Compose Deployment on GCP VM
 
-This guide documents the deployment, configuration, validation, and persistence testing of a containerized Moodle environment using Docker Compose on a Google Cloud Compute Engine virtual machine.
+
+This runbook documents the deployment, validation, and persistence testing of a containerized Moodle environment using Docker Compose on a Google Cloud Platform (GCP) Compute Engine virtual machine.
+
+> Note: Infrastructure provisioning of the Google Compute Engine instance was performed using Terraform. This document focuses exclusively on the Docker Compose application deployment and workload validation phase.
 
 ---
 
@@ -8,10 +11,12 @@ This guide documents the deployment, configuration, validation, and persistence 
 
 This deployment assumes a clean Linux Compute Engine VM has already been provisioned.
 
+The VM provides the host environment for the Docker Compose application stack.
+
 Required software on the host VM:
 
 - Docker Engine
-- Docker Compose CLI (docker-compose commands used by this deployment)
+- Docker Compose CLI
 - Git
 
 Verify installations:
@@ -66,10 +71,10 @@ Verify Docker commands execute without elevated privileges:
 docker ps
 ```
 
-Expected result:
-```text
-CONTAINER ID   IMAGE   COMMAND   CREATED   STATUS   PORTS   NAMES
-```
+	Expected result:
+	```text
+	CONTAINER ID   IMAGE   COMMAND   CREATED   STATUS   PORTS   NAMES
+	```
 
 ---
 
@@ -87,13 +92,13 @@ Verify the Docker deployment structure:
 ls -la
 ```
 
-Expected:
-```text
-docker-compose.yml
-nginx/
-php/
-mysql/
-```
+	Expected:
+	```text
+	docker-compose.yml
+	nginx/
+	php/
+	mysql/
+	```
 
 ---
 
@@ -130,28 +135,28 @@ Build the custom application images:
 docker-compose build --no-cache
 ```
 
-Expected output:
-```text
-Creating docker_mysql_1   ... done
-Creating docker_php-fpm_1 ... done
-Creating docker_nginx_1   ... done
-```
+	Expected output:
+	```text
+	Creating docker_mysql_1   ... done
+	Creating docker_php-fpm_1 ... done
+	Creating docker_nginx_1   ... done
+	```
 
 Start the application stack in detached mode:
 ```bash
 docker-compose up -d
 ```
 
-Expected deployment output:
+	Expected deployment output:
 
-```text
-[+] Running 5/5
- ✔ Network docker_web_network Created
- ✔ Volume docker_moodle_code Created
- ✔ Container docker-php-fpm-1 Started
- ✔ Container docker-mysql-1 Started
- ✔ Container docker-nginx-1 Started
-```
+	```text
+	[+] Running 5/5
+	 ✔ Network docker_web_network Created
+	 ✔ Volume docker_moodle_code Created
+	 ✔ Container docker-php-fpm-1 Started
+	 ✔ Container docker-mysql-1 Started
+	 ✔ Container docker-nginx-1 Started
+	```
 ---
 
 # Runtime Verification
@@ -161,12 +166,13 @@ Verify the application containers are running:
 docker ps
 ```
 
-Expected services:
-```text
-docker-nginx-1
-docker-php-fpm-1
-docker-mysql-1
-```
+	Expected services:
+	```text
+	docker-nginx-1
+	docker-php-fpm-1
+	docker-mysql-1
+	```
+
 Verify the container networking layer:
 ```bash
 docker network inspect docker_web_network
@@ -183,10 +189,10 @@ Validate that the Nginx reverse proxy is responding locally from the VM:
 curl -I http://<GCP_EXTERNAL_IP>
 ```
 
-Expected response:
-```text
-HTTP/1.1 302 Found
-```
+	Expected response:
+	```text
+	HTTP/1.1 302 Found
+	```
 
 Retrieve the external VM address for browser access:
 ```bash
@@ -199,7 +205,6 @@ Verify that a Google Cloud firewall rule allows inbound HTTP (TCP port 80) to th
 - **Target:** VM instance
 
 Open the Moodle deployment:
-
 ```text
 http://<YOUR_VM_EXTERNAL_IP>
 ```
@@ -325,21 +330,29 @@ Verify database creation:
 SHOW DATABASES;
 ```
 
-Expected output:
-```text
-moodle
-```
-
+	Expected output:
+	+--------------------+
+	| Database           |
+	+--------------------+
+	| information_schema |
+	| moodle             |
+	| mysql              |
+	| performance_schema |
+	| sys                |
+	+--------------------+	
+	5 rows in set (0.02 sec)	```
+	```
+	
 Verify configured database users:
 ```sql
 SELECT user, host FROM mysql.user;
 ```
 
-Expected output:
-```text
-moodleuser %
-root %
-```
+	Expected output:
+	```text
+	moodleuser %
+	root %
+	```
 
 Exit MySQL:
 ```sql
@@ -361,6 +374,7 @@ Before recreating the container stack, create application data to verify databas
    ```
 5. Upload a course image.
 6. Confirm the profile image and course image render correctly before container recreation.
+
 
 ### Persistence Validation
 

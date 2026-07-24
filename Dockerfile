@@ -31,7 +31,10 @@ RUN chown -R www-data:www-data /var/www/html
 # TO UNBLOCK THE NETWORK INTERFACE NATIVELY
 RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /usr/local/etc/php-fpm.d/www.conf
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> feature
 # MOODLE PHP SETTINGS
 RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/moodle.ini \
     && echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/moodle.ini \
