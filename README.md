@@ -76,16 +76,15 @@ This repository documents the evolution of a Moodle deployment from Docker Compo
 ## Project Documentation
 
 To keep the repository clean and easy to navigate, the technical operational details have been separated into dedicated engineering logs:
+* 📄 **[GCP Terraform Deployment Guide](./docs/gcp_terraform_deploy.md)**
 
-* 📄 **[GCP Terraform Deployment Guide](./gcp_terraform_Deploy.md)** (Terraform / GCP): Provision the Google Cloud infrastructure required for the workload, including Compute Engine VM creation and initial host configuration.
+* 📄 **[P1 Docker Deployment Guide](./docs/p1_docker_deploy.md)**
 
-* 📄 **[P1 Docker Deployment Guide](./p1_docker_deploy.md)** (Docker Compose / GCP VM): Build and deploy the containerized Moodle environment using Docker Compose on Google Cloud Compute Engine.
+* 📄 **[P1 Post-Mortem](./docs/p1_post_mortem.md)**
 
-* 📄 **[P1 Post-Mortem](./p1_post_mortem.md)** (Docker Compose / GCP VM): Troubleshooting notes, issues encountered, resolutions, and lessons learned during the Docker Compose cloud deployment.
+* 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_K8_deploy.md)**
 
-* 📄 **[P2 Kubernetes Deployment Guide](./p2_K8_deploy.md)** (Kubernetes / KinD): Deploy the Moodle application stack into a local Kubernetes cluster using KinD.
-
-* 📄 **[P2 Kubernetes Post-Mortem](./p2_post_mortem.md)** (Kubernetes / KinD): Troubleshooting notes covering Kubernetes networking, ingress, storage, scheduling, and deployment issues.
+* 📄 **[P2 Kubernetes Post-Mortem](./docs/p2_post_mortem.md)**
 
 ---
 
