@@ -86,6 +86,7 @@ gcloud config set project $PROJECT_ID
 export GOOGLE_PROJECT="$PROJECT_ID"
 export CLOUDSDK_CORE_PROJECT="$PROJECT_ID"
 ```
+
 Updates are available for some Google Cloud CLI components.
 ```bash
 gcloud components update
@@ -168,7 +169,6 @@ Deploy the infrastructure using the automation wrapper script:
 ```
 
 Creates:
-
 - Compute Engine VM
 - Firewall rules
 - Network configuration
@@ -186,3 +186,55 @@ vm_ip = "<external-vm-ip>"
 ```
 
 ---
+
+# Application Access and Workload Verification
+
+Establish an SSH connection to the newly provisioned Compute Engine instance:
+
+```bash
+gcloud compute ssh moodle-vm --zone=<YOUR_GCP_ZONE>
+```
+
+Verify that the automation setup successfully initialized Docker and spun up the Moodle containers:
+
+```bash
+docker compose ps
+```
+
+Expected output:
+```text
+NAME          IMAGE          COMMAND                  SERVICE   STATUS    PORTS
+moodle-db     mysql:8.0      "docker-entrypoint.s…"   db        running   3306/tcp
+moodle-web    nginx:alpine   "/docker-entrypoint.…"   web       running   0.0.0.0:80->80/tcp
+moodle-app    php:8.2-fpm    "docker-php-entrypoi…"   app       running   9000/tcp
+```
+
+---
+
+# Public Access Verification
+
+Extract the public IP address from the Terraform outputs and test network routing via your browser:
+
+```text
+http://<external-vm-ip>
+```
+
+Expected result:
+- The Moodle configuration entry point loads instantly.
+- Cloud firewall rules correctly allow and route incoming traffic on port 80.
+- End-to-end containerized database and runtime persistence function properly.
+
+---
+
+# Destroy Environment
+
+To avoid ongoing cloud consumption and billing charges, tear down all provisioned resources cleanly via Terraform:
+
+```bash
+terraform destroy --auto-approve
+```
+
+This successfully removes:
+* The Compute Engine virtual machine instance.
+* Custom cloud firewall rules and dedicated VPC network overrides.
+* Attached external IP allocations and volatile disk mounts.
