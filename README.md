@@ -74,17 +74,6 @@ This repository documents my journey deploying the same application across diffe
 
 ## Project Documentation
 
-
-To keep the repository clean and easy to navigate, the technical operational details have been separated into dedicated engineering logs:
-* 📄 **[GCP Terraform Deployment Guide](./docs/gcp_terraform_deploy.md)**
-
-* 📄 **[P1 Docker Deployment Guide](./docs/p1_docker_deploy.md)**
-
-* 📄 **[P1 Post-Mortem](./docs/p1_post_mortem.md)**
-
-* 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_K8_deploy.md)**
-
-
 To keep the repository organized, deployment guides and troubleshooting notes are maintained separately:
 
 * 📄 **[GCP Terraform Deployment Guide](./docs/gcp_terraform_deploy.md)**
