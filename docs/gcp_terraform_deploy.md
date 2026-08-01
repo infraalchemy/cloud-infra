@@ -1,6 +1,6 @@
 # GCP Terraform Deployment Guide
 
-This document contains the step-by-step commands used to authenticate Google Cloud, configure the deployment environment, provision infrastructure with Terraform, and deploy the docker-compose application.
+This guide covers authenticating with GCP, provisioning infrastructure with Terraform, and deploying your application containers via Docker Compose.
 
 ---
 
@@ -42,25 +42,21 @@ The deployment follows this simplified, automated sequence:
 # Google Cloud Authentication
 
 Authenticate the Google Cloud account:
-
 ```bash
 gcloud auth login
 ```
 
 Configure Application Default Credentials:
-
 ```bash
 gcloud auth application-default login
 ```
 
 Verify the active account:
-
 ```bash
 gcloud config list account
 ```
 
 Expected:
-
 ```text
 [core]
 account = <your-email-address>
@@ -71,14 +67,12 @@ account = <your-email-address>
 ## Project Configuration
 
 Clear out sticky terminal memory overrides from legacy sessions:
-
 ```bash
 unset CLOUDSDK_CORE_PROJECT
 unset GOOGLE_PROJECT
 ```
 
 Set the target Google Cloud project:
-
 ```bash
 export PROJECT_ID="<YOUR_GCP_PROJECT_ID>"
 
@@ -98,14 +92,12 @@ gcloud config list project
 ```
 
 Expected:
-
 ```text
 [core]
 project = <YOUR_GCP_PROJECT_ID>
 ```
 
 Configure Application Default Credentials quota project:
-
 ```bash
 gcloud auth application-default set-quota-project $PROJECT_ID
 ```
@@ -157,13 +149,11 @@ terraform init
 ```
 
 Generate the infrastructure plan and verify it maps out `2 to add`:
-
 ```bash
 terraform plan
 ```
 
 Deploy the infrastructure using the automation wrapper script:
-
 ```bash
 ./deploy.sh
 ```
@@ -174,13 +164,11 @@ Creates:
 - Network configuration
 
 Verify Terraform output variables:
-
 ```bash
 terraform output
 ```
 
 Expected:
-
 ```text
 vm_ip = "<external-vm-ip>"
 ```
@@ -190,13 +178,11 @@ vm_ip = "<external-vm-ip>"
 # Application Access and Workload Verification
 
 Establish an SSH connection to the newly provisioned Compute Engine instance:
-
 ```bash
 gcloud compute ssh moodle-vm --zone=<YOUR_GCP_ZONE>
 ```
 
 Verify that the automation setup successfully initialized Docker and spun up the Moodle containers:
-
 ```bash
 docker compose ps
 ```
@@ -214,7 +200,6 @@ moodle-app    php:8.2-fpm    "docker-php-entrypoi…"   app       running   9000
 # Public Access Verification
 
 Extract the public IP address from the Terraform outputs and test network routing via your browser:
-
 ```text
 http://<external-vm-ip>
 ```
@@ -229,7 +214,6 @@ Expected result:
 # Destroy Environment
 
 To avoid ongoing cloud consumption and billing charges, tear down all provisioned resources cleanly via Terraform:
-
 ```bash
 terraform destroy --auto-approve
 ```

@@ -1,5 +1,3 @@
-Successfully deployed the Moodle application on a multi-node KinD Kubernetes cluster within Windows 11/WSL2, confirming full web access and file-upload functionality.
-
 # Infrastructure Migration Post-Mortem
 
 Deploying the infrastructure architecture onto Google Cloud Platform (GCP) from a fresh system account profile introduced several challenges involving Terraform state management, project authorization, IAM permissions, shell environment context, and deployment configuration.
@@ -57,7 +55,6 @@ googleapi: Error 403: Consumer 'projects/<PROJECT_ID>' has been suspended.
 ```
 * **The Cause:** The target GCP project was not ready for resource deployment. The project billing status and configuration needed to be validated before Terraform could create resources.
 * **The Fix:** Verified the project billing configuration and linked an active billing account to the GCP project:
-
 ```bash
 gcloud billing projects link <PROJECT_ID> --billing-account=<BILLING_ACCOUNT_ID>
 ```
