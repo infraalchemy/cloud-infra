@@ -17,7 +17,7 @@ This repository documents my journey deploying the same application across diffe
 │   ├── gcp_terraform_deploy.md           # GCP VM/infrastructure provisioning guide
 │   ├── p1_docker_deploy.md               # docker-compose deployment guide
 │   ├── p1_post_mortem.md                 # docker-compose troubleshooting notes
-│   ├── p2_K8_deploy.md                   # Kubernetes KinD deployment guide
+│   ├── p2_k8_deploy.md                   # Kubernetes KinD deployment guide
 │   └── p2_post_mortem.md                 # Kubernetes troubleshooting notes
 │
 ├── docker/                               # docker-compose deployment
@@ -91,7 +91,7 @@ To keep the repository organized, deployment guides and troubleshooting notes ar
 * 📄 **[P1 Docker Deployment Guide](./docs/p1_docker_deploy.md)**
 * 📄 **[P1 Post-Mortem](./docs/p1_post_mortem.md)**
 * 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_K8_deploy.md)**
-
+* 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_k8_deploy.md)**
 * 📄 **[P2 Kubernetes Post-Mortem](./docs/p2_post_mortem.md)**
 
 ---
