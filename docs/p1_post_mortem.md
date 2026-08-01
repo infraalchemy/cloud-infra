@@ -9,7 +9,6 @@ Deploying the infrastructure architecture onto Google Cloud Platform (GCP) from 
 * **The Problem:** Running `terraform plan` returned a `403 Forbidden` error. Terraform was referencing an older GCP project environment (`cloud-lab-XXXXX`) that was no longer part of the active configuration.
 * **The Cause:** Although the previous project ID had been removed from the Terraform configuration files, local Terraform state and initialization data from the previous environment were still present. Terraform used this existing state information during execution, causing resources to be evaluated against the incorrect project context.
 * **The Fix:** Removed the local Terraform state and initialization files to force a clean Terraform initialization:
-
 ```bash
 rm -rf .terraform/
 rm -f terraform.tfstate terraform.tfstate.backup
@@ -69,7 +68,6 @@ Error creating Firewall: googleapi: Error 403: Permission denied on resource pro
 ```
 * **The Cause:** The authenticated account did not have the required permissions to create Compute Engine networking resources in the target GCP project.
 * **The Fix:** Updated the project IAM permissions and refreshed the local authentication credentials:
-
 ```bash
 gcloud projects add-iam-policy-binding <PROJECT_ID> \
     --member="user:<ACCOUNT_EMAIL>" \
@@ -90,7 +88,6 @@ gcloud auth application-default login
 * **The Problem:** While enabling GCP services, the command execution failed with an `AUTH_PERMISSION_DENIED` / `SERVICE_CONFIG_NOT_FOUND_OR_PERMISSION_DENIED` error. The error output showed that the service name was being interpreted incorrectly due to a malformed command argument.
 * **The Cause:** A multi-line command copied into the terminal was not parsed correctly. The line continuation characters (`\`) caused the command input to split incorrectly, resulting in an invalid service name being passed to the `gcloud` command.
 * **The Fix:** Simplified the command execution by separating multi-line commands into individual single-line commands, ensuring each service activation request was processed correctly.
-
 ```bash
 gcloud services enable ://googleapis.com
 gcloud services enable ://googleapis.com
@@ -130,7 +127,6 @@ docker exec -it docker_php-fpm_1 php /var/www/html/admin/cli/purge_caches.php
 * **The Problem:** Uploaded Moodle resources, including site images and course files, completely failed to render correctly across the user interface.
 * **The Cause:** Moodle uses slash arguments when serving files out of its storage directories. The Nginx PHP configuration block was not correctly capturing or passing the required `PATH_INFO` metadata variables down to the PHP-FPM processing engine.
 * **The Fix:** Updated the Nginx PHP location configuration block to explicitly extract and include the required FastCGI parameters:
-
 ```nginx
 location ~ [^/]\.php(/|\$) {
     fastcgi_split_path_info ^(.+\.php)(/.+)\$;

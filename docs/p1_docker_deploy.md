@@ -2,7 +2,7 @@
 
 This runbook documents the deployment, validation, and persistence testing of a containerized Moodle environment using Docker Compose on a Google Cloud Platform (GCP) Compute Engine virtual machine.
 
-> Note: Infrastructure provisioning of the Google Compute Engine instance was performed using Terraform. This document focuses exclusively on the Docker Compose application deployment and workload validation phase.
+*Note: The database table prefix (`mdl_`) must remain identical across all deployment phases and upgrades. Changing this value causes Moodle to drop its mapping to existing tables, generating an empty schema and resulting in total application data loss.*
 
 ---
 
@@ -102,7 +102,6 @@ mysql/
 
 The `.env` file contains database credentials and sensitive configuration values. It is excluded from source control through `.gitignore`.
 The `.env` file must be created in the same directory as `docker-compose.yml`.
-
 ```bash
 nano .env
 ```
@@ -251,9 +250,7 @@ Complete the Moodle installation wizard using the following sequence:
 - Leave the browser open at this page.
 - Complete administrator configuration using Moodle CLI tools inside the PHP-FPM container.
 
-*Notes:*
-- *Retain the default Moodle database table prefix (`mdl_`) unless a custom schema strategy is intentionally required.*
-- *The database host must reference the Docker Compose service name (mysql) rather than localhost, as MySQL runs in a separate container.*
+*Notes: Maintain a consistent Moodle database table prefix (mdl_) throughout upgrades. Changing the prefix can create data migration issues and require a time-consuming, potentially risky recovery process.*
 
 ---
 
@@ -384,7 +381,7 @@ Verify the marker file exists:
 docker exec <php-fpm-name> cat /var/www/moodledata/persistence_lock.txt
 ```
 
-**Expected output:**
+Expected output:
 ```text
 Persistence Token Verification
 ```
@@ -395,14 +392,14 @@ Stop and remove the running application containers to trigger structural replace
 ```bash
 docker-compose down
 ```
-> **Note:** `docker-compose down` removes containers and networks but preserves named Docker volumes. Persistent application and database storage remain intact.
+*Note: `docker-compose down` removes containers and networks but preserves named Docker volumes. Persistent application and database storage remain intact.*
 
 Verify that application containers no longer exist:
 ```bash
 docker ps -a
 ```
 
-**Expected result:**
+Expected result:
 ```text
 No active Moodle application containers
 ```
@@ -416,7 +413,7 @@ Verify that new container instances are running cleanly:
 ```bash
 docker ps
 ```
-> **Note:** The container IDs and creation timestamps will differ from the original deployment, confirming full container replacement.
+*Note: The container IDs and creation timestamps will differ from the original deployment, confirming full container replacement.*
 
 ## 4. Validate Data Consistency Post-Recovery
 
@@ -424,7 +421,7 @@ Verify the filesystem persistence marker survived container recreation:
 ```bash
 docker exec <php-fpm-name> cat /var/www/moodledata/persistence_lock.txt
 ```
-**Expected output:**
+Expected output:
 ```text
 Persistence Token Verification
 ```
@@ -433,7 +430,7 @@ Verify that the MySQL database volume retained application records:
 ```bash
 docker exec -it <mysql-name> mysql -u moodleuser -p -e "USE moodle; SELECT COUNT(*) FROM mdl_user;"
 ```
-**Expected result:**
+Expected result:
 ```text
 The returned user count matches the value recorded before container recreation.
 ```
@@ -445,7 +442,7 @@ Open the Moodle site in your web browser:
 http://<YOUR_VM_EXTERNAL_IP>
 ```
 
-**Expected results:**
+Expected results:
 * Moodle login page loads successfully.
 * Administrator credentials continue to function.
 * Previously created courses remain available.
@@ -464,7 +461,7 @@ When retiring the lab, remove the application containers, project networks, name
 docker-compose down -v --rmi all
 ```
 
-**Expected Results:**
+Expected Results:
 ```text
 Stopping docker_nginx_1 ... done
 Stopping docker_mysql_1 ... done
@@ -481,4 +478,4 @@ Removing image docker_nginx
 Removing image mysql:8.0
 ```
 
-> **Note:** The `-v` flag removes persistent volumes, purging all Moodle database records and file assets. The `--rmi all` option deletes base images, forcing a clean rebuild during subsequent deployment runs.
+*Note: The `-v` flag removes persistent volumes, purging all Moodle database records and file assets. The `--rmi all` option deletes base images, forcing a clean rebuild during subsequent deployment runs.*
