@@ -79,7 +79,7 @@ Refresh local Application Default Credentials (ADC):
 gcloud auth application-default login
 ```
 
-> **Note:** Application Default Credentials (ADC) allow tools such as Terraform and Google Cloud SDK integrations to authenticate API requests using the configured user identity.
+*Note: Application Default Credentials (ADC) allow tools such as Terraform and Google Cloud SDK integrations to authenticate API requests using the configured user identity.*
 
 ---
 
