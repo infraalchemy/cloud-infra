@@ -294,6 +294,7 @@ http://localhost
 ```
 
 Expected result:
+
 - Moodle installation page loads in the browser.
 - Nginx is successfully routing incoming traffic.
 - PHP-FPM and MySQL backend connectivity is available.
