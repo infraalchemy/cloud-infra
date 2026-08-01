@@ -364,9 +364,9 @@ Before deleting the PHP pod, create test data within Moodle:
 2. Complete and save the administrator profile.
 3. Upload an administrator profile image.
 4. Create a test course:
-    ```text
-    Infrastructure Test Course
-    ```
+```text
+Infrastructure Test Course
+```
 5. Upload a course image.
 6. Confirm both images render correctly before pod recreation.
 
