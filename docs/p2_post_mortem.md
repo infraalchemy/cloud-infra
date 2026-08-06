@@ -19,7 +19,7 @@ hostPort: 8443        # HTTPS traffic moved away from host port 443
 
 * **The Problem:** Local web browser traffic became trapped in continuous SSL/TLS redirection loops, which blocked all HTTP-based application testing.
 * **The Cause:** The Nginx Ingress controller was enforcing default global configurations that automatically upgraded all incoming unencrypted HTTP requests to secure HTTPS connections.
-* **The Fix:** Explicitly disabled the Ingress controller's automatic SSL redirect behaviors by injecting specific configuration annotations directly into the application's Ingress resource manifest.
+* **The Fix:** Disabled the Ingress controller's automatic SSL redirect behaviors by injecting specific configuration annotations directly into the application's Ingress resource manifest.
 
 ```yaml
 metadata:
