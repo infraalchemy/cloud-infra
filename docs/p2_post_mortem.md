@@ -86,8 +86,8 @@ max_input_vars=5000
 # 7. Hidden Worker Node Redirection and Ingress Scheduling
 
 * **The Problem:** External browser communication to the Moodle application failed with an `ERR_EMPTY_RESPONSE` error, even though all Kubernetes application pods reported healthy status and Moodle data remained accessible. The issue was isolated to the external traffic path between the Windows host and the Kubernetes Ingress layer.
-* **The Cause:** The cluster was configured as a multi-node KinD environment instead of the default single-node setup. The Ingress controller was running on the control-plane node, while external host traffic was mapped through the worker node, causing requests to bypass the active Ingress routing layer.
-* **The Fix:** A temporary diagnostic hotfix was first applied by patching the `ingress-nginx-controller` deployment with scheduling rules to move the controller onto the node receiving external traffic. This validated that the issue was related to Ingress placement and node networking rather than the Moodle application, services, or persistent data.
+* **The Cause:** The cluster was configured as a multi-node KinD environment instead of the default single-node setup. The traffic path and ingress controller placement were misaligned between the control-plane and worker nodes, causing external requests to reach a node that was not handling Ingress traffic.
+* **The Fix:** A temporary diagnostic hotfix was applied by patching the `ingress-nginx-controller` deployment with scheduling rules to move the controller onto the node receiving external traffic. This confirmed that the issue was related to Ingress placement and node networking rather than the Moodle application, Kubernetes services, or persistent storage.
 
 ```bash
 kubectl get pods -n ingress-nginx -o wide -w
@@ -99,4 +99,33 @@ kubectl patch deployment ingress-nginx-controller -n ingress-nginx \
 -p '{"spec":{"template":{"spec":{"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/control-plane","operator":"Exists","effect":"NoSchedule"}]}}}}'
 ```
 
-Next Step: The permanent configuration changes required to prevent reliance on the temporary hotfix are described in the following section.
+# 8. Ingress Controller Scheduling Issue (Permanent Fix)
+
+* **The Problem:** The initial KinD cluster configuration placed the ingress entry point on the control-plane node. The control-plane node had the `ingress-ready=true` label and the required host port mappings, allowing external traffic to enter through the control-plane node.
+* **The Cause:** The ingress-nginx deployment included tolerations for the control-plane taint, allowing the ingress controller to schedule on the control-plane node. In a multi-node KinD cluster, this caused the ingress controller placement and external traffic entry point to rely on the control-plane configuration.
+* **The Fix:** The ingress configuration was updated to move the ingress entry point to the worker node.
+
+kind-config.yaml Changes:
+- Removed the `ingress-ready=true` label from the control-plane node.
+- Added the `ingress-ready=true` label to the worker node.
+- Moved the host port mappings for ports 80 and 443 to the worker node.
+
+ingress-nginx.yaml Changes:
+- Removed the control-plane tolerations from the ingress controller deployment.
+
+Validation
+The ingress controller was verified running on the worker node:
+```bash
+kubectl get pods -n ingress-nginx -o wide
+```
+
+The ingress controller was verified running on the worker node:
+```bash
+kubectl get pods -n ingress-nginx -o wide
+```
+
+Expected:
+```text
+NAME                                      NODE
+ingress-nginx-controller-xxxxx            lab-worker
+```

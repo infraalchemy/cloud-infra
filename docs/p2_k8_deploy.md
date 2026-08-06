@@ -77,7 +77,7 @@ kind export kubeconfig --name lab
 
 Expected context:
 ```text
-* kind-lab
+Set kubectl context to "kind-lab"
 ```
 
 Verify cluster nodes:
@@ -195,6 +195,18 @@ Inspect active routing configuration:
 kubectl exec deploy/nginx -- nginx -T | grep "server_name"
 ```
 
+Expected:
+```text
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successfulfastcgi_param  SERVER_NAME        $server_name;
+```
+
+View the logs:
+```bash
+kubectl logs <nginx-pod-name>
+```
+
+
 ---
 
 ## Verify DB exists
@@ -237,6 +249,13 @@ Confirm Moodle PHP settings:
 ```bash
 kubectl exec deploy/php -- php -i | grep -E "memory_limit|max_execution_time|max_input_vars"
 ```
+Expected:
+```text
+memory_limit=512M
+max_execution_time=300
+max_input_vars=5000
+```
+
 
 ---
 
@@ -247,7 +266,7 @@ Deploy the ingress controller:
 kubectl apply -f ingress-nginx.yaml
 ```
 
-Wait for the ingress controller:
+Wait for the ingress controller (Ready=1/1):
 ```bash
 kubectl get pods -n ingress-nginx -w
 ```
@@ -267,6 +286,29 @@ If the admission webhook becomes stuck due to stale local cluster state:
 ```bash
 kubectl delete validatingwebhookconfiguration ingress-nginx-admission
 ```
+
+Find Ingress pod
+```bash (
+kubectl get pods -n ingress-nginx
+```
+
+Validation
+The ingress controller was verified running on the worker node:
+```bash
+kubectl get pods -n ingress-nginx -o wide
+```
+
+Expected:
+```text
+NAME                                      NODE
+ingress-nginx-controller-xxxxx            lab-worker
+```
+
+View the logs:
+```bash
+kubectl logs -n ingress-nginx <ingress-nginx-controller-pod>
+```
+
 
 ---
 
