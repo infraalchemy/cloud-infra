@@ -69,11 +69,11 @@ command: ["sh", "-c", "wget --max-redirect=5 -O moodle.tgz 'https://moodle.org' 
 
 ---
 
-## 6. Application Resource Deprivation Barrier
+## 6. Moodle Installation Resource Limits
 
-* **The Problem:** The application repeatedly locked up or crashed during the core installation phase despite having healthy network pathways.
-* **The Cause:** The default base container image capped PHP runtime memory allocation at `128M`. This threshold is completely insufficient for Moodle during its initial setup routine, which requires heavy processing for file directory indexing and bulk database table generation.
-* **The Fix:** Layered a custom PHP configuration override file (`moodle.ini`) into the Docker image build to expand runtime resource ceilings.
+* **The Problem:** The Moodle installation repeatedly locked up or failed during the initial setup phase despite healthy network connectivity and running containers.
+* **The Cause:** The default PHP container configuration limited available resources, including a 128M memory limit. This was insufficient for Moodle's initial installation process, which performs intensive operations such as file processing and database schema creation.
+* **The Fix:** Added a custom PHP configuration override (`moodle.ini`) to the Docker image to increase runtime limits:
 
 ```ini
 memory_limit=512M
@@ -83,7 +83,7 @@ max_input_vars=5000
 
 ---
 
-# 7. Hidden Worker Node Redirection and Ingress Scheduling
+## 7. Hidden Worker Node Redirection and Ingress Scheduling
 
 * **The Problem:** External browser communication to the Moodle application failed with an `ERR_EMPTY_RESPONSE` error, even though all Kubernetes application pods reported healthy status and Moodle data remained accessible. The issue was isolated to the external traffic path between the Windows host and the Kubernetes Ingress layer.
 * **The Cause:** The cluster was configured as a multi-node KinD environment instead of the default single-node setup. The traffic path and ingress controller placement were misaligned between the control-plane and worker nodes, causing external requests to reach a node that was not handling Ingress traffic.
@@ -99,7 +99,7 @@ kubectl patch deployment ingress-nginx-controller -n ingress-nginx \
 -p '{"spec":{"template":{"spec":{"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/control-plane","operator":"Exists","effect":"NoSchedule"}]}}}}'
 ```
 
-# 8. Ingress Controller Scheduling Issue (Permanent Fix)
+## 8. Ingress Controller Scheduling Issue (Permanent Fix)
 
 * **The Problem:** The initial KinD cluster configuration placed the ingress entry point on the control-plane node. The control-plane node had the `ingress-ready=true` label and the required host port mappings, allowing external traffic to enter through the control-plane node.
 * **The Cause:** The ingress-nginx deployment included tolerations for the control-plane taint, allowing the ingress controller to schedule on the control-plane node. In a multi-node KinD cluster, this caused the ingress controller placement and external traffic entry point to rely on the control-plane configuration.
