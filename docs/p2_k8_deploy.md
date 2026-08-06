@@ -93,7 +93,7 @@ lab-worker
 
 ---
 
-# Storage Deployment
+## Storage Deployment
 
 Persistent storage is deployed first because Moodle requires application data to survive container replacement.
 ```bash
@@ -108,7 +108,7 @@ kubectl get pvc
 
 ---
 
-# Database Deployment (MySQL)
+## Database Deployment (MySQL)
 
 Deploy the database layer:
 ```bash
@@ -312,7 +312,7 @@ kubectl logs -n ingress-nginx <ingress-nginx-controller-pod>
 
 ---
 
-# Storage Verification
+## Storage Verification
 
 Verify persistent volume claims:
 ```bash
@@ -328,7 +328,7 @@ This confirms that application workloads have successfully claimed the persisten
 
 ---
 
-# Localhost Access Verification
+## Localhost Access Verification
 
 After the Ingress controller and Moodle ingress rules are deployed, verify that the application is reachable:
 ```text
