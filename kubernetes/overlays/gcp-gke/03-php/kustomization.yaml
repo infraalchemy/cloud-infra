@@ -6,6 +6,9 @@ resources:
   - ../../../php/deployment.yaml
   - ../../../php/service.yaml
 
+patches:
+  - path: image-pull-policy-patch.yaml #image configuration issue
+
 images:
   - name: extn-php:8.2
     newName: northamerica-northeast2-docker.pkg.dev/civic-champion-439320-a5/moodle-repo/custom-php
