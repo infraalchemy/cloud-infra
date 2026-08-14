@@ -57,7 +57,7 @@ This repository documents my journey deploying the same application across diffe
 │       │   ├── kind-config.yaml
 │       │   └── kustomization.yaml
 │       │
-│       └── prod-gcp/                     # Planned GKE deployment
+│       └── gcp-gke/                      # Planned GKE deployment
 │
 ├── terraform/                            # Google Cloud infrastructure provisioning
 │   ├── modules/                          # Reusable Terraform modules
