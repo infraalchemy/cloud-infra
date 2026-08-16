@@ -288,7 +288,7 @@ kubectl delete validatingwebhookconfiguration ingress-nginx-admission
 ```
 
 Find Ingress pod
-```bash (
+```bash
 kubectl get pods -n ingress-nginx
 ```
 

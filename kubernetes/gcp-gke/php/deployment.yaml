@@ -1,0 +1,68 @@
+# php deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      initContainers:
+        - name: init-moodle
+          image: alpine:3.19
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              apk add --no-cache wget tar
+              cd /var/www/html
+              if [ ! -f index.php ]; then
+                 # FIXED: Uses the explicit direct tarball url with redirect forcing flags
+                wget --max-redirect=5 -O moodle.tgz "https://download.moodle.org/download.php/direct/stable404/moodle-latest-404.tgz"
+                tar -xzf moodle.tgz
+                cp -a moodle/. .
+              fi
+              chown -R 33:33 /var/www/html
+              chown -R 33:33 /moodledata
+          volumeMounts:
+            - name: moodle-code
+              mountPath: /var/www/html
+            - name: moodle-data
+              mountPath: /moodledata
+      containers:
+      - name: php
+        image: <your GKE Artifact Registry image>
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9000
+        env:
+        - name: DB_HOST
+          value: mysql
+        - name: DB_NAME
+          value: moodle
+        - name: DB_USER
+          value: moodleuser
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: php-secret
+              key: db-password
+        volumeMounts:
+        - name: moodle-code
+          mountPath: /var/www/html
+        - name: moodle-data
+          mountPath: /moodledata
+      volumes:
+      - name: moodle-code
+        persistentVolumeClaim:
+          claimName: moodle-pvc
+      - name: moodle-data
+        persistentVolumeClaim:
+          claimName: moodledata-pvc

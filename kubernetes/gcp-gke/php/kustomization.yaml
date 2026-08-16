@@ -1,0 +1,12 @@
+# PHP
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+images:
+  - name: moodle-php-custom
+    newName: northamerica-northeast2-docker.pkg.dev/civic-champion-439320-a5/moodle-repo/custom-php
+    newTag: "8.2"

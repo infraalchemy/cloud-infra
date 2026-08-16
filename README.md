@@ -34,30 +34,50 @@ This repository documents my journey deploying the same application across diffe
 │       ├── index.php                     # PHP validation entry point
 │       └── testdb.php                    # Database connectivity test
 │
-├── kubernetes/                           # Kubernetes application manifests
-│   ├── mysql/                            # MySQL database deployment
+kubernetes/
+├── kind/                                  # Local KinD Kubernetes environment
+│   ├── storage/                           # Persistent Moodle storage
+│   │   └── moodle-storage.yaml
+│   ├── mysql/                             # MySQL database
 │   │   ├── deployment.yaml
 │   │   └── service.yaml
-│   │
-│   ├── nginx/                            # Nginx reverse proxy deployment
+│   ├── php/                               # PHP-FPM Moodle application
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   ├── nginx/                             # Nginx reverse proxy
 │   │   ├── configmap.yaml
 │   │   ├── deployment.yaml
 │   │   └── service.yaml
-│   │
-│   ├── php/                              # PHP-FPM Moodle application deployment
-│   │   ├── deployment.yaml
-│   │   └── service.yaml
-│   │
+│   └── overlays/                          # KinD-specific configuration
+│       ├── ingress.yaml
+│       ├── kind-config.yaml
+│       └── kustomization.yaml
+│
+├── gcp-gke/                              # Google Kubernetes Engine environment
 │   ├── storage/                          # Persistent Moodle storage
-│   │   └── moodle-storage.yaml
+│   │   ├── moodle-storage.yaml           # PersistentVolumeClaim definitions for Moodle data
+│   │   └── kustomization.yaml            # Kustomize configuration for GKE storage
 │   │
-│   └── overlays/                         # Environment-specific configuration
-│       ├── local-kind/                   # Local KinD Kubernetes environment
-│       │   ├── ingress.yaml
-│       │   ├── kind-config.yaml
-│       │   └── kustomization.yaml
-│       │
-│       └── gcp-gke/                      # Planned GKE deployment
+│   ├── mysql/                            # MySQL database
+│   │   ├── deployment.yaml               # MySQL deployment definition
+│   │   ├── service.yaml                  # Internal Kubernetes service for MySQL
+│   │   └── kustomization.yaml            # Kustomize configuration for GKE MySQL
+│   │
+│   ├── php/                              # PHP-FPM Moodle application
+│   │   ├── deployment.yaml               # PHP-FPM application deployment
+│   │   ├── service.yaml                  # Internal service exposing PHP-FPM
+│   │   └── kustomization.yaml            # Kustomize configuration for GKE PHP
+│   │
+│   ├── nginx/                            # Nginx reverse proxy
+│   │   ├── configmap.yaml                # Nginx configuration
+│   │   ├── deployment.yaml               # Nginx reverse proxy deployment
+│   │   ├── service.yaml                  # Internal service exposing Nginx
+│   │   ├── backendconfig.yaml            # GKE load balancer health-check configuration
+│   │   └── kustomization.yaml            # Kustomize configuration for GKE Nginx
+│   │
+│   └── overlays/                         # GKE-level configuration
+│       ├── ingress.yaml                  # GKE Ingress configuration for external access
+│       └── kustomization.yaml            # Kustomize configuration for GKE Ingress
 │
 ├── terraform/                            # Google Cloud infrastructure provisioning
 │   ├── modules/                          # Reusable Terraform modules

@@ -1,11 +1,8 @@
 # nginx
-# nginx
 apiVersion: v1
 kind: Service
 metadata:
   name: nginx
-  annotations:
-    cloud.google.com/backend-config: '{"default": "nginx-backend-config"}'
 spec:
   type: ClusterIP
   selector:
