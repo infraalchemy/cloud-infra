@@ -4,4 +4,4 @@ metadata:
   name: nginx-backend-config
 spec:
   healthCheck:
-    requestPath: /install.php
+    requestPath: /healthz

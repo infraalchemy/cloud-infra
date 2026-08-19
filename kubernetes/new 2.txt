@@ -1,0 +1,210 @@
+
+
+
+1. Create the GKE cluster
+gcloud container clusters create moodle-gke-cluster \
+  --zone northamerica-northeast2-a \
+  --num-nodes 2 \
+  --machine-type e2-medium
+2. Connect kubectl to GKE
+gcloud container clusters get-credentials moodle-gke-cluster \
+  --zone northamerica-northeast2-a
+
+Verify:
+
+kubectl get nodes
+
+3. Deploy 01–04
+
+01 Storage
+relaxes Kustomize's file-loading security restriction:
+kubectl kustomize --load-restrictor LoadRestrictionsNone kubernetes/gcp-gke/storage/
+kubectl kustomize --load-restrictor LoadRestrictionsNone \
+  kubernetes/gcp-gke/storage/ | kubectl apply -f -
+
+kubectl get pvc
+
+02 MySQL
+kubectl kustomize --load-restrictor LoadRestrictionsNone kubernetes/gcp-gke/mysql/
+kubectl kustomize --load-restrictor LoadRestrictionsNone \
+  kubernetes/gcp-gke/mysql/ | kubectl apply -f -
+kubectl get pods -w
+
+03 PHP
+kubectl kustomize --load-restrictor LoadRestrictionsNone kubernetes/gcp-gke/php/
+kubectl kustomize --load-restrictor LoadRestrictionsNone \
+  kubernetes/gcp-gke/php/ | kubectl apply -f -
+
+Verify the PHP image:
+
+kubectl get deployment php \
+  -o jsonpath="{.spec.template.spec.containers[0].image}"
+
+04 Nginx
+kubectl kustomize --load-restrictor LoadRestrictionsNone kubernetes/gcp-gke/nginx/
+kubectl kustomize --load-restrictor LoadRestrictionsNone \
+  kubernetes/gcp-gke/nginx/ | kubectl apply -f -
+
+kubectl get service nginx -o yaml
+expected:
+Live servicxe has:
+
+cloud.google.com/backend-config: '{"default":"nginx-backend-config"}'
+
+GKE is also managing the NEG:
+cloud.google.com/neg: '{"ingress":true}'
+
+kubectl get backendconfig nginx-backend-config -o yaml
+
+expected:
+The BackendConfig is present and GKE has exactly the health check we intended:
+spec:
+  healthCheck:
+    requestPath: /install.php
+
+kubectl describe ingress moodle-ingress
+
+expected:
+Annotations:  ingress.kubernetes.io/backends:
+                {"k8s1-1c544d72-default-nginx-80-d46c5d31":"HEALTHY","k8s1-1c544d72-kube-system-default-http-backend-80-591b856c":"HEALTHY"}
+
+Check LocalHost:
+curl -I http://8.232.234.123
+browser:
+http://8.232.234.123
+
+
+
+
+Stop before 05
+
+Verify:
+
+kubectl get pods
+kubectl get svc
+kubectl get endpoints nginx
+kubectl get pvc
+
+kubectl exec -it nginx-747ccd6c85-8tw6b -- curl -I http://localhost/
+
+Deploy #05
+
+kubectl kustomize --load-restrictor LoadRestrictionsNone \
+  kubernetes/gcp-gke/overlays/
+kubectl kustomize --load-restrictor LoadRestrictionsNone \
+  kubernetes/gcp-gke/overlays/ | kubectl apply -f -
+
+gcloud compute backend-services list --global
+expected:
+NAME: k8s1-d8798267-kube-system-default-http-backend-80-1d452ec2
+BACKENDS: northamerica-northeast2-a/networkEndpointGroups/k8s1-d8798267-kube-system-default-http-backend-80-1d452ec2
+PROTOCOL: HTTP
+
+
+Wait until ADDRESS gets an external IP:
+kubectl get ingress moodle-ingress -w
+
+expected:
+kubectl get ingress moodle-ingress -w
+NAME             CLASS    HOSTS   ADDRESS   PORTS   AGE
+moodle-ingress   <none>   *                 80      113s
+moodle-ingress   <none>   *       34.49.127.103   80      3m38s
+moodle-ingress   <none>   *       34.49.127.103   80      3m40s
+
+ NOTE: GCP falls back to checking / on port 80. Since Moodle catches / and issues a 302 Redirect to /login/index.php (or similar), the load balancer marks the backend as unhealthy.
+ 
+Check GKE load balancer was created correctly first.
+GKE reports the nginx backend as HEALTHY or UNHEALTHY.
+kubectl describe ingress moodle-ingress
+
+expected
+nginx:80 → UNHEALTHY
+
+gcloud compute health-checks list
+
+expected:
+NAME: <k8s1-8ae90912-default-nginx-80-3b414222>
+REGION:
+PROTOCOL: HTTP
+
+gcloud compute health-checks describe \
+  <k8s1-8ae90912-default-nginx-80-3b414222>
+
+k8s1-8ae90912-default-nginx-80-3b414222
+HTTP
+port = serving port (80)
+path = /
+timeout = 15s
+
+Good. Now we know exactly what GKE is checking:
+
+HTTP
+port = serving port (80)
+path = /
+timeout = 15s
+
+So GKE is effectively doing:
+
+GET http://10.100.0.7:80/
+
+and deciding it is unhealthy.
+
+kubectl exec -it nginx-747ccd6c85-8tw6b -- curl -I http://10.100.0.7/
+
+Nginx pod has a readiness probe
+kubectl get pod nginx-747ccd6c85-8tw6b -o yaml | grep -A10 readinessProbe
+
+expected:
+nothing returned Nginx pod does not have a readinessProbe
+note A missing readiness probe is not automatically the cause of the GKE health check failure.
+
+We know:
+
+Nginx pod is Running and 1/1
+nginx Service has endpoint 10.100.0.7:80
+GKE created the load balancer
+GKE's health check is HTTP / on port 80
+/ works from inside the pod
+
+ kubectl run healthcheck-test --rm -it --restart=Never --image=curlimages/curl -- \
+  curl -I http://10.100.0.7/
+HTTP/1.1 302 Found
+Server: nginx/1.30.4
+Date: Sat, 15 Aug 2026 23:17:52 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+X-Powered-By: PHP/8.2.30
+Location: install.php
+
+pod "healthcheck-test" deleted from default namespace
+
+
+
+deleted
+kubectl delete -k kubernetes/gcp-gke/overlays/          # wait for it to finish
+
+kubectl delete -k kubernetes/gcp-gke/nginx/             # wait for it to finish
+
+kubectl delete -k kubernetes/gcp-gke/php/               # wait for it to finish
+
+kubectl delete -k kubernetes/gcp-gke/mysql/             # wait for it to finish
+
+kubectl delete -k kubernetes/gcp-gke/storage/
+
+ 
+
+verify:
+kubectl get pods
+kubectl get svc
+kubectl get endpoints nginx
+kubectl get pvc
+
+
+
+File changed Then verify it builds:
+
+kubectl kustomize kubernetes/gcp-gke/mysql/
+
+
+CLI
+kubectl exec -it <php-pod> -- php /var/www/html/admin/cli/install.php

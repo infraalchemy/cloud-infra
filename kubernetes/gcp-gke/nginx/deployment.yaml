@@ -5,6 +5,12 @@ metadata:
   name: nginx
 spec:
   replicas: 1
+  
+  # === PASTE THIS STRATEGY BLOCK HERE ===
+  strategy:
+    type: Recreate
+  # ======================================
+  
   selector:
     matchLabels:
       app: nginx
@@ -18,6 +24,17 @@ spec:
         image: nginx:stable
         ports:
         - containerPort: 80
+
+        # GKE health check issue
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
         
         volumeMounts:
         - name: nginx-config
@@ -34,4 +51,4 @@ spec:
 
       - name: moodle-code
         persistentVolumeClaim:
-          claimName: moodle-pvc    
+          claimName: moodle-pvc

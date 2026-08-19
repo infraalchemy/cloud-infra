@@ -38,7 +38,7 @@ spec:
               mountPath: /moodledata
       containers:
       - name: php
-        image: <your GKE Artifact Registry image>
+        image: northamerica-northeast2-docker.pkg.dev/civic-champion-439320-a5/moodle-repo/custom-php:8.2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9000

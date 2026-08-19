@@ -9,15 +9,19 @@ data:
         index index.php index.html;
         root /var/www/html;
 
+        # GKE health check issue
+        location = /healthz {
+            access_log off;
+            default_type text/plain;
+            return 200 "OK\n";
+        }
         location / {
             try_files $uri $uri/ /index.php?$query_string;
         }
 
         location ~ \.php(/|$) {
             include fastcgi_params;
-
             fastcgi_split_path_info ^(.+\.php)(/.+)$;
-
             fastcgi_pass php:9000;
             
             # TWO TIMEOUT LINES 
@@ -25,10 +29,8 @@ data:
             fastcgi_send_timeout 600s;
 
             fastcgi_index index.php;
-
             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
             fastcgi_param PATH_INFO $fastcgi_path_info;
-
             fastcgi_param HTTP_PROXY "";
         }
     }

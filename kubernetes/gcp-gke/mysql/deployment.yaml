@@ -23,7 +23,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: mysql-secret
-              key: password
+              key: root-password
         - name: MYSQL_DATABASE
           value: moodle
         
@@ -31,4 +31,7 @@ spec:
           value: moodleuser
 
         - name: MYSQL_PASSWORD
-          value: rootpassword  
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: moodleuser-password

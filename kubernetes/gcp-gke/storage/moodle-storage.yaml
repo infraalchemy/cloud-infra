@@ -3,9 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: moodle-pvc
 spec:
-  storageClassName: standard
+  storageClassName: standard-rwx
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 5Gi

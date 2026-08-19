@@ -132,10 +132,14 @@ Successfully deployed the Moodle application on a multi-node KinD Kubernetes clu
 
 ---
 
-## Phase 3 – Cloud Infrastructure Automation (Future Work)
+## Phase 3 – Cloud Infrastructure Automation
 
 ### Goal
+
 Expand the project to include automated infrastructure provisioning and cloud-native deployment workflows.
 
-### Planned Work
-Future enhancements include Terraform automation, GitHub Actions integration, Google Cloud Workload Identity Federation (OIDC), and evaluating migration of the Kubernetes deployment to Google Kubernetes Engine (GKE).
+### Work
+
+This phase includes Terraform-based infrastructure provisioning and deployment of the Kubernetes application to Google Kubernetes Engine (GKE).
+
+Planned enhancements include GitHub Actions integration and Google Cloud Workload Identity Federation (OIDC).
