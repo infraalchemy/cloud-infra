@@ -34,26 +34,27 @@ This repository documents my journey deploying the same application across diffe
 │       ├── index.php                     # PHP validation entry point
 │       └── testdb.php                    # Database connectivity test
 │
-kubernetes/
-├── kind/                                  # Local KinD Kubernetes environment
-│   ├── storage/                           # Persistent Moodle storage
+├── kubernetes/
+│ ├── kind/                               # Local KinD Kubernetes environment
+│   ├── storage/                          # Persistent Moodle storage
 │   │   └── moodle-storage.yaml
-│   ├── mysql/                             # MySQL database
+│   ├── mysql/                            # MySQL database
 │   │   ├── deployment.yaml
 │   │   └── service.yaml
-│   ├── php/                               # PHP-FPM Moodle application
+│   ├── php/                              # PHP-FPM Moodle application
 │   │   ├── deployment.yaml
 │   │   └── service.yaml
-│   ├── nginx/                             # Nginx reverse proxy
+│   ├── nginx/                            # Nginx reverse proxy
 │   │   ├── configmap.yaml
 │   │   ├── deployment.yaml
 │   │   └── service.yaml
-│   └── overlays/                          # KinD-specific configuration
-│       ├── ingress.yaml
-│       ├── kind-config.yaml
-│       └── kustomization.yaml
-│
-├── gcp-gke/                              # Google Kubernetes Engine environment
+│   ├── overlays/                         # KinD-specific configuration
+│   │   ├── ingress.yaml
+│   │   ├── kind-config.yaml
+│   │   └── kustomization.yaml
+│   │ 
+│ ├── gcp-gke/                            # Google Kubernetes Engine environment
+│   │
 │   ├── storage/                          # Persistent Moodle storage
 │   │   ├── moodle-storage.yaml           # PersistentVolumeClaim definitions for Moodle data
 │   │   └── kustomization.yaml            # Kustomize configuration for GKE storage
@@ -77,7 +78,8 @@ kubernetes/
 │   │
 │   └── overlays/                         # GKE-level configuration
 │       ├── ingress.yaml                  # GKE Ingress configuration for external access
-│       └── kustomization.yaml            # Kustomize configuration for GKE Ingress
+│       ├── kustomization.yaml            # Kustomize configuration for GKE Ingress
+│       └── managed-cert.yaml             # Google-managed SSL/TLS certificate
 │
 ├── terraform/                            # Google Cloud infrastructure provisioning
 │   ├── modules/                          # Reusable Terraform modules
@@ -135,12 +137,15 @@ Successfully deployed the Moodle application on a multi-node KinD Kubernetes clu
 ## Phase 3 – Moodle Kubernetes Deployment on GKE
 
 ### Goal
-Expand the project to include automated infrastructure provisioning and cloud-native deployment workflows.
+Migrate the Kubernetes-based Moodle deployment from the local KinD environment to Google Kubernetes Engine (GKE) to validate cloud infrastructure provisioning, persistent storage, ingress routing, SSL, and environment-specific deployment workflows.
 
-### Work
-This phase includes Terraform-based infrastructure provisioning and deployment of the Kubernetes application to Google Kubernetes Engine (GKE).
+The application was deployed using Kubernetes resources including Deployments, Services, Persistent Volume Claims, Secrets, ConfigMaps, initContainers, and GKE Ingress routing. Infrastructure and environment configuration were managed using Terraform and Kustomize.
 
-Planned enhancements include GitHub Actions integration and Google Cloud Workload Identity Federation (OIDC).
+### Result
+Successfully deployed the Moodle application on a multi-node GKE cluster with persistent RWX/Filestore storage, GKE Ingress, a global static IP, and Google-managed HTTPS certificates for secure external access. The deployment supports pod lifecycle changes across nodes while retaining application data.
+
+### Next Steps
+Integrate GitHub Actions CI/CD pipelines and implement Google Cloud Workload Identity Federation (OIDC) for secure, passwordless authentication.
 
 ---
 
