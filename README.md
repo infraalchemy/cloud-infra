@@ -120,7 +120,7 @@ Successfully deployed a working containerized Moodle environment. This provided 
 
 ---
 
-## Phase 2 – Local Cluster Orchestration & Debugging (Kubernetes with KinD)
+## Phase 2 – Local Moodle Kubernetes Cluster (KinD)
 
 ### Goal
 Migrate the Docker-based Moodle deployment into a local KinD Kubernetes cluster to validate container orchestration, networking, storage, ingress routing, and deployment workflows.
@@ -132,14 +132,23 @@ Successfully deployed the Moodle application on a multi-node KinD Kubernetes clu
 
 ---
 
-## Phase 3 – Cloud Infrastructure Automation
+## Phase 3 – Moodle Kubernetes Deployment on GKE
 
 ### Goal
-
 Expand the project to include automated infrastructure provisioning and cloud-native deployment workflows.
 
 ### Work
-
 This phase includes Terraform-based infrastructure provisioning and deployment of the Kubernetes application to Google Kubernetes Engine (GKE).
 
 Planned enhancements include GitHub Actions integration and Google Cloud Workload Identity Federation (OIDC).
+
+---
+
+## Phase 4 – Moodle Kubernetes Deployment on AWS
+
+### Goal
+Extend the platform to AWS to demonstrate cloud portability and the ability to apply the same infrastructure and Kubernetes deployment patterns across cloud providers.
+
+### Planned Work
+Future enhancements include Terraform-based AWS infrastructure provisioning, deployment of the Kubernetes application to Amazon Elastic Kubernetes Service (EKS), AWS identity and access management, and integration with AWS-native networking, storage, and monitoring services.
+
