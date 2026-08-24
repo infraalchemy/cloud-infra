@@ -34,52 +34,55 @@ This repository documents my journey deploying the same application across diffe
 │       ├── index.php                     # PHP validation entry point
 │       └── testdb.php                    # Database connectivity test
 │
-├── kubernetes/
-│ ├── kind/                               # Local KinD Kubernetes environment
-│   ├── storage/                          # Persistent Moodle storage
-│   │   └── moodle-storage.yaml
-│   ├── mysql/                            # MySQL database
-│   │   ├── deployment.yaml
-│   │   └── service.yaml
-│   ├── php/                              # PHP-FPM Moodle application
-│   │   ├── deployment.yaml
-│   │   └── service.yaml
-│   ├── nginx/                            # Nginx reverse proxy
-│   │   ├── configmap.yaml
-│   │   ├── deployment.yaml
-│   │   └── service.yaml
-│   ├── overlays/                         # KinD-specific configuration
-│   │   ├── ingress.yaml
-│   │   ├── kind-config.yaml
-│   │   └── kustomization.yaml
-│   │ 
-│ ├── gcp-gke/                            # Google Kubernetes Engine environment
+├── kubernetes/                           # Kubernetes deployment configurations
+│   ├── kind/                             # Local KinD Kubernetes environment
+│   │   ├── storage/                      # Persistent Moodle storage
+│   │   │   └── moodle-storage.yaml       # Persistent storage configuration
+│   │   │
+│   │   ├── mysql/                        # MySQL database
+│   │   │   ├── deployment.yaml           # MySQL deployment definition
+│   │   │   └── service.yaml              # Internal Kubernetes service for MySQL
+│   │   │
+│   │   ├── php/                          # PHP-FPM Moodle application
+│   │   │   ├── deployment.yaml           # PHP-FPM application deployment
+│   │   │   └── service.yaml              # Internal service exposing PHP-FPM
+│   │   │
+│   │   ├── nginx/                        # Nginx reverse proxy
+│   │   │   ├── configmap.yaml            # Nginx configuration
+│   │   │   ├── deployment.yaml           # Nginx reverse proxy deployment
+│   │   │   └── service.yaml              # Internal service exposing Nginx
+│   │   │
+│   │   └── overlays/                     # KinD-specific configuration
+│   │       ├── ingress.yaml              # Local ingress configuration
+│   │       ├── kind-config.yaml          # KinD cluster and node configuration
+│   │       └── kustomization.yaml        # Kustomize configuration for KinD
 │   │
-│   ├── storage/                          # Persistent Moodle storage
-│   │   ├── moodle-storage.yaml           # PersistentVolumeClaim definitions for Moodle data
-│   │   └── kustomization.yaml            # Kustomize configuration for GKE storage
-│   │
-│   ├── mysql/                            # MySQL database
-│   │   ├── deployment.yaml               # MySQL deployment definition
-│   │   ├── service.yaml                  # Internal Kubernetes service for MySQL
-│   │   └── kustomization.yaml            # Kustomize configuration for GKE MySQL
-│   │
-│   ├── php/                              # PHP-FPM Moodle application
-│   │   ├── deployment.yaml               # PHP-FPM application deployment
-│   │   ├── service.yaml                  # Internal service exposing PHP-FPM
-│   │   └── kustomization.yaml            # Kustomize configuration for GKE PHP
-│   │
-│   ├── nginx/                            # Nginx reverse proxy
-│   │   ├── configmap.yaml                # Nginx configuration
-│   │   ├── deployment.yaml               # Nginx reverse proxy deployment
-│   │   ├── service.yaml                  # Internal service exposing Nginx
-│   │   ├── backendconfig.yaml            # GKE load balancer health-check configuration
-│   │   └── kustomization.yaml            # Kustomize configuration for GKE Nginx
-│   │
-│   └── overlays/                         # GKE-level configuration
-│       ├── ingress.yaml                  # GKE Ingress configuration for external access
-│       ├── kustomization.yaml            # Kustomize configuration for GKE Ingress
-│       └── managed-cert.yaml             # Google-managed SSL/TLS certificate
+│   └── gcp-gke/                          # Google Kubernetes Engine environment
+│       ├── storage/                      # Persistent Moodle storage
+│       │   ├── moodle-storage.yaml       # PersistentVolumeClaim definitions for Moodle data
+│       │   └── kustomization.yaml        # Kustomize configuration for GKE storage
+│       │
+│       ├── mysql/                        # MySQL database
+│       │   ├── deployment.yaml           # MySQL deployment definition
+│       │   ├── service.yaml              # Internal Kubernetes service for MySQL
+│       │   └── kustomization.yaml        # Kustomize configuration for GKE MySQL
+│       │
+│       ├── php/                          # PHP-FPM Moodle application
+│       │   ├── deployment.yaml           # PHP-FPM application deployment
+│       │   ├── service.yaml              # Internal service exposing PHP-FPM
+│       │   └── kustomization.yaml        # Kustomize configuration for GKE PHP
+│       │
+│       ├── nginx/                        # Nginx reverse proxy
+│       │   ├── configmap.yaml            # Nginx configuration
+│       │   ├── deployment.yaml           # Nginx reverse proxy deployment
+│       │   ├── service.yaml              # Internal service exposing Nginx
+│       │   ├── backendconfig.yaml        # GKE load balancer health-check configuration
+│       │   └── kustomization.yaml        # Kustomize configuration for GKE Nginx
+│       │
+│       └── overlays/                     # GKE-level configuration
+│           ├── ingress.yaml               # GKE Ingress configuration for external access
+│           ├── kustomization.yaml        # Kustomize configuration for GKE Ingress
+│           └── managed-cert.yaml          # Google-managed SSL/TLS certificate
 │
 ├── terraform/                            # Google Cloud infrastructure provisioning
 │   ├── modules/                          # Reusable Terraform modules
@@ -90,8 +93,8 @@ This repository documents my journey deploying the same application across diffe
 │   └── variables.tf                      # Terraform variables
 │
 ├── Dockerfile                            # Root Moodle application image build
-├── README.md
-└── .gitignore
+├── README.md                             # Project overview and deployment documentation
+└── .gitignore                            # Git ignore rules
 ```
 
 ## Project Documentation
@@ -135,6 +138,7 @@ Successfully deployed the Moodle application on a multi-node KinD Kubernetes clu
 ---
 
 ## Phase 3 – Moodle Kubernetes Deployment on GKE
+*Recreate testing and documentation in progress*
 
 ### Goal
 Migrate the Kubernetes-based Moodle deployment from the local KinD environment to Google Kubernetes Engine (GKE) to validate cloud infrastructure provisioning, persistent storage, ingress routing, SSL, and environment-specific deployment workflows.
@@ -142,7 +146,7 @@ Migrate the Kubernetes-based Moodle deployment from the local KinD environment t
 The application was deployed using Kubernetes resources including Deployments, Services, Persistent Volume Claims, Secrets, ConfigMaps, initContainers, and GKE Ingress routing. Infrastructure and environment configuration were managed using Terraform and Kustomize.
 
 ### Result
-Successfully deployed the Moodle application on a multi-node GKE cluster with persistent RWX/Filestore storage, GKE Ingress, a global static IP, and Google-managed HTTPS certificates for secure external access. The deployment supports pod lifecycle changes across nodes while retaining application data.
+Successfully deployed the Moodle application on a multi-node GKE cluster with persistent RWX/Filestore storage, GKE Ingress, a global static IP, and Google-managed HTTPS certificates for secure external access. The deployment uses separate Kubernetes components for MySQL, PHP, Nginx, and persistent storage, with Terraform and Kustomize supporting repeatable infrastructure and environment-specific configuration.
 
 ### Next Steps
 Integrate GitHub Actions CI/CD pipelines and implement Google Cloud Workload Identity Federation (OIDC) for secure, passwordless authentication.
