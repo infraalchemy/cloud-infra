@@ -1,0 +1,12 @@
+# php
+apiVersion: v1
+kind: Service
+metadata:
+  name: php
+spec:
+  type: ClusterIP
+  selector:
+    app: php
+  ports:
+    - port: 9000
+      targetPort: 9000
