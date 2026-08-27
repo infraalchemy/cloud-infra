@@ -66,7 +66,7 @@ Create the local KinD cluster:
 
 ```bash
 kind create cluster \
-  --config kubernetes/overlays/local-kind/kind-config.yaml \
+  --config kubernetes/kind/overlays/kind-config.yaml \
   --name lab
 ```
 
@@ -74,8 +74,7 @@ Configure kubectl context:
 ```bash
 kind export kubeconfig --name lab
 ```
-
-Expected context:
+*Expected context:*
 ```text
 Set kubectl context to "kind-lab"
 ```
@@ -84,8 +83,7 @@ Verify cluster nodes:
 ```bash
 kubectl get nodes
 ```
-
-Expected result:
+*Expected result:*
 ```text
 lab-control-plane
 lab-worker
@@ -97,7 +95,7 @@ lab-worker
 
 Persistent storage is deployed first because Moodle requires application data to survive container replacement.
 ```bash
-kubectl apply -f kubernetes/storage/moodle-storage.yaml
+kubectl apply -f kubernetes/kind/storage/moodle-storage.yaml
 ```
 
 Verify storage resources:
@@ -112,7 +110,7 @@ kubectl get pvc
 
 Deploy the database layer:
 ```bash
-kubectl apply -f kubernetes/mysql/
+kubectl apply -f kubernetes/kind/mysql/
 ```
 
 Restart if required:
@@ -143,7 +141,7 @@ kind load docker-image extn-php:8.2 --name lab
 
 Deploy PHP:
 ```bash
-kubectl apply -f kubernetes/php/
+kubectl apply -f kubernetes/kind/php/
 ```
 
 Restart PHP after image updates:
@@ -184,8 +182,7 @@ Verify Nginx configuration:
 ```bash
 kubectl exec deploy/nginx -- nginx -t
 ```
-
-Expected:
+*Expected:*
 ```text
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
@@ -195,7 +192,7 @@ Inspect active routing configuration:
 kubectl exec deploy/nginx -- nginx -T | grep "server_name"
 ```
 
-Expected:
+*Expected:*
 ```text
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successfulfastcgi_param  SERVER_NAME        $server_name;
@@ -221,7 +218,7 @@ SQL Query:
 SHOW DATABASES;
 ```
 
-Expected output:
+*Expected output:*
 ```text
 +--------------------+
 | Database           |
@@ -249,9 +246,9 @@ Confirm Moodle PHP settings:
 ```bash
 kubectl exec deploy/php -- php -i | grep -E "memory_limit|max_execution_time|max_input_vars"
 ```
-Expected:
+*Expected:*
 ```text
-memory_limit=512M
+memory_limit=0
 max_execution_time=300
 max_input_vars=5000
 ```
@@ -273,7 +270,7 @@ kubectl get pods -n ingress-nginx -w
 
 Apply Moodle ingress rules:
 ```bash
-kubectl apply -f kubernetes/overlays/local-kind/ingress.yaml
+kubectl apply -f kubernetes/kind/overlays/ingress.yaml
 ```
 
 Verify ingress resources:
@@ -297,8 +294,7 @@ The ingress controller was verified running on the worker node:
 ```bash
 kubectl get pods -n ingress-nginx -o wide
 ```
-
-Expected:
+*Expected:*
 ```text
 NAME                                      NODE
 ingress-nginx-controller-xxxxx            lab-worker
@@ -309,7 +305,6 @@ View the logs:
 kubectl logs -n ingress-nginx <ingress-nginx-controller-pod>
 ```
 
-
 ---
 
 ## Storage Verification
@@ -318,8 +313,7 @@ Verify persistent volume claims:
 ```bash
 kubectl get pvc
 ```
-
-Expected after application deployment:
+*Expected after application deployment:*
 ```text
 STATUS = Bound
 ```
@@ -335,7 +329,7 @@ After the Ingress controller and Moodle ingress rules are deployed, verify that 
 http://localhost
 ```
 
-Expected result:
+*Expected result:*
 
 - Moodle installation page loads in the browser.
 - Nginx is successfully routing incoming traffic.
@@ -435,8 +429,7 @@ Verify Kubernetes creates a replacement pod:
 ```bash
 kubectl get pods -w
 ```
-
-Example result:
+*Example result:*
 ```text
 mysql-xxxxx   1/1   Running   0   4d4h
 nginx-xxxxx   1/1   Running   0   4d4h
@@ -451,8 +444,7 @@ Verify Moodle application files are still available:
 ```bash
 kubectl exec deploy/php -- ls /var/www/html
 ```
-
-Expected:
+*Expected:*
 ```text
 Existing Moodle files are still present
 ```
