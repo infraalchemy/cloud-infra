@@ -3,7 +3,7 @@
 .DS_Store
 
 # Local Binaries
-kind
+/kind
 kind.exe
 
 # MySQL runtime data
