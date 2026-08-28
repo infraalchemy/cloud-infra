@@ -124,9 +124,9 @@ To keep the repository organized, deployment guides and troubleshooting notes ar
 * 📄 **[GCP Terraform Deployment Guide](./docs/gcp_terraform_deploy.md)**
 * 📄 **[P1 Docker Deployment Guide](./docs/p1_docker_deploy.md)**
 * 📄 **[P1 Post-Mortem](./docs/p1_post_mortem.md)**
-* 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_K8_deploy.md)**
 * 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_k8_deploy.md)**
 * 📄 **[P2 Kubernetes Post-Mortem](./docs/p2_post_mortem.md)**
+* 📄 **[P3 GKE Deployment Guide](./docs/p3_k8_deploy.md)**
 
 ---
 
