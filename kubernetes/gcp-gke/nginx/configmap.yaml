@@ -36,5 +36,9 @@ data:
 
             # CRITICAL FOR HTTPS TRANSLATION IN MOODLE
             fastcgi_param HTTP_X_FORWARDED_PROTO $http_x_forwarded_proto;
+            
+            # THESE TWO LINES FOR REAL IP PASS-THROUGH
+            fastcgi_param HTTP_X_REAL_IP $remote_addr;
+            fastcgi_param HTTP_X_FORWARDED_FOR $proxy_add_x_forwarded_for;
         }
     }

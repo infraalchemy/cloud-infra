@@ -6,9 +6,12 @@ metadata:
     kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.global-static-ip-name: "moodle-static-ip"
     networking.gke.io/managed-certificates: "moodle-ssl-cert"
+    # This forces the load balancer to accept both HTTP and HTTPS frontend traffic
+    kubernetes.io/ingress.allow-http: "true" 
 spec:
   rules:
-    - http:
+    - host: bordercolliechronicles.ca # Make sure your domain is explicitly mapped here
+      http:
         paths:
           - path: /
             pathType: Prefix
@@ -16,4 +19,4 @@ spec:
               service:
                 name: nginx
                 port:
-                  number: 80
+                  number: 80 # The load balancer terminates SSL at the edge, then talks to Nginx on 80

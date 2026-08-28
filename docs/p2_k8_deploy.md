@@ -497,3 +497,15 @@ Optional cleanup:
 ```bash
 docker system prune -a --volumes -f
 ```
+
+---
+
+## KinD Temporary Path
+```bash
+ export PATH="$PATH:$PWD"
+ ```
+On Windows, you don't need the extensionless Linux binary in this repo.
+```bash
+kind       10,215,572 bytes   ← Linux binary
+kind.exe   10,514,944 bytes   ← Windows binary
+```
