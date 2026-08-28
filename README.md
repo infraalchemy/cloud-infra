@@ -4,7 +4,21 @@
 
 Moodle was selected because it represents a realistic, stateful application with multiple moving parts. It requires application configuration, database persistence, storage management, networking, and deployment automation.
 
-This repository documents my journey deploying the same application across different environments. I started with Docker Compose on a Google Cloud VM, migrated the workload into a local Kubernetes cluster using KinD, and began exploring infrastructure provisioning with Terraform. Future work includes GitHub Actions integration and Google Cloud authentication using Workload Identity Federation.
+This repository documents my journey deploying the same application across different environments. I started with Docker Compose on a Google Cloud VM, migrated the workload into a local Kubernetes cluster using KinD, and then deployed it to Google Kubernetes Engine (GKE) using Terraform and Kustomize. Future work includes GitHub Actions integration and Google Cloud authentication using Workload Identity Federation.
+
+---
+
+## Deployment Environment
+
+All infrastructure provisioning and application deployments were initiated from a Windows workstation.
+
+- Workstation: Windows
+- Local Linux environment: WSL2
+- Container runtime: Docker Desktop
+- Local Kubernetes: KinD
+- Cloud infrastructure: Google Cloud Platform (GCP)
+- Cloud Kubernetes: Google Kubernetes Engine (GKE)
+- Infrastructure as Code: Terraform
 
 ---
 
@@ -95,7 +109,10 @@ This repository documents my journey deploying the same application across diffe
 ├── Dockerfile                            # Root Moodle application image build
 ├── README.md                             # Project overview and deployment documentation
 └── .gitignore                            # Git ignore rules
+
 ```
+
+---
 
 ## Project Documentation
 
