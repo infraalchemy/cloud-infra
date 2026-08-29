@@ -55,6 +55,85 @@ gcloud config get-value project
 <PROJECT-ID>
 ```
 
+---
+
+# Artifact Registry and Custom PHP Image
+
+The custom PHP image is built from the project Dockerfile and stored in Google Artifact Registry so it can be pulled by the GKE cluster during deployment.
+
+*Note: The Artifact Registry repository is created only during the initial GCP deployment. When rebuilding the GKE environment, reuse the existing repository. Rebuild and push the custom PHP image only when the Dockerfile or image configuration has changed.*
+
+## Enable Artifact Registry
+
+Enable the Google Artifact Registry service:
+```bash
+gcloud services enable artifactregistry.googleapis.com
+```
+
+---
+
+## Create Artifact Registry Repository
+
+Create the Docker repository in the `northamerica-northeast2` region:
+```bash
+gcloud artifacts repositories create moodle-repo \
+  --repository-format=docker \
+  --location=northamerica-northeast2 \
+  --description="Docker repository for Moodle custom PHP"
+```
+
+Verify that the repository was created:
+```bash
+gcloud artifacts repositories list
+```
+
+---
+
+## Configure Docker Authentication
+
+Configure Docker authentication for the Artifact Registry region:
+```bash
+gcloud auth configure-docker northamerica-northeast2-docker.pkg.dev
+```
+
+---
+
+## Build Custom PHP Image
+
+Build the custom PHP image from the project Dockerfile and tag it for Artifact Registry:
+```bash
+docker build -t northamerica-northeast2-docker.pkg.dev/<PROJECT-ID>/moodle-repo/custom-php:8.2 .
+```
+
+---
+
+## Push Custom PHP Image
+
+Push the custom PHP image to Artifact Registry:
+```bash
+docker push northamerica-northeast2-docker.pkg.dev/<PROJECT-ID>/moodle-repo/custom-php:8.2
+```
+
+---
+
+## Verify Custom PHP Image
+
+Verify that the custom PHP image is available in Artifact Registry:
+```bash
+gcloud artifacts docker images list \
+  northamerica-northeast2-docker.pkg.dev/<PROJECT-ID>/moodle-repo
+```
+*Expected:*
+```text
+IMAGE: northamerica-northeast2-docker.pkg.dev/<PROJECT-ID>/moodle-repo/custom-php
+DIGEST: sha256:<digest>
+CREATE_TIME: <timestamp>
+UPDATE_TIME: <timestamp>
+SIZE: <size>
+```
+
+---
+
 # Deployment Workflow
 
 The deployment follows this sequence:
