@@ -74,7 +74,7 @@ Configure kubectl context:
 ```bash
 kind export kubeconfig --name lab
 ```
-*Expected context:*
+*Expected:*
 ```text
 Set kubectl context to "kind-lab"
 ```
@@ -83,7 +83,7 @@ Verify cluster nodes:
 ```bash
 kubectl get nodes
 ```
-*Expected result:*
+*Expected:*
 ```text
 lab-control-plane
 lab-worker
@@ -218,7 +218,7 @@ SQL Query:
 SHOW DATABASES;
 ```
 
-*Expected output:*
+*Expected:*
 ```text
 +--------------------+
 | Database           |
@@ -313,7 +313,7 @@ Verify persistent volume claims:
 ```bash
 kubectl get pvc
 ```
-*Expected after application deployment:*
+*Expected:*
 ```text
 STATUS = Bound
 ```
@@ -329,7 +329,7 @@ After the Ingress controller and Moodle ingress rules are deployed, verify that 
 http://localhost
 ```
 
-*Expected result:*
+*Expected:*
 
 - Moodle installation page loads in the browser.
 - Nginx is successfully routing incoming traffic.

@@ -24,6 +24,9 @@ All infrastructure provisioning and application deployments were initiated from 
 
 ## Repository Structure
 
+*Temporary component-level Kustomizations were used during testing to independently deploy and validate each component.*
+
+
 ```text
 ├── .github/                              # GitHub Actions workflows
 │
@@ -79,24 +82,24 @@ All infrastructure provisioning and application deployments were initiated from 
 │       ├── mysql/                        # MySQL database
 │       │   ├── deployment.yaml           # MySQL deployment definition
 │       │   ├── service.yaml              # Internal Kubernetes service for MySQL
-│       │   └── kustomization.yaml        # Kustomize configuration for GKE MySQL
+│       │   └── kustomization.yaml        # Kustomize configuration for GKE MySQL  
 │       │
 │       ├── php/                          # PHP-FPM Moodle application
 │       │   ├── deployment.yaml           # PHP-FPM application deployment
 │       │   ├── service.yaml              # Internal service exposing PHP-FPM
-│       │   └── kustomization.yaml        # Kustomize configuration for GKE PHP
+│       │   └── kustomization.yaml        # Kustomize configuration for GKE PHP   
 │       │
 │       ├── nginx/                        # Nginx reverse proxy
 │       │   ├── configmap.yaml            # Nginx configuration
 │       │   ├── deployment.yaml           # Nginx reverse proxy deployment
 │       │   ├── service.yaml              # Internal service exposing Nginx
 │       │   ├── backendconfig.yaml        # GKE load balancer health-check configuration
-│       │   └── kustomization.yaml        # Kustomize configuration for GKE Nginx
+│       │   └── kustomization.yaml        # Kustomize configuration for GKE Nginx  
 │       │
 │       └── overlays/                     # GKE-level configuration
-│           ├── ingress.yaml               # GKE Ingress configuration for external access
-│           ├── kustomization.yaml        # Kustomize configuration for GKE Ingress
-│           └── managed-cert.yaml          # Google-managed SSL/TLS certificate
+│           ├── ingress.yaml              # GKE Ingress configuration for external access
+│           ├── kustomization.yaml        # Kustomize configuration for GKE Ingress  
+│           └── managed-cert.yaml         # Google-managed SSL/TLS certificate
 │
 ├── terraform/                            # Google Cloud infrastructure provisioning
 │   ├── modules/                          # Reusable Terraform modules
@@ -121,9 +124,9 @@ To keep the repository organized, deployment guides and troubleshooting notes ar
 * 📄 **[GCP Terraform Deployment Guide](./docs/gcp_terraform_deploy.md)**
 * 📄 **[P1 Docker Deployment Guide](./docs/p1_docker_deploy.md)**
 * 📄 **[P1 Post-Mortem](./docs/p1_post_mortem.md)**
-* 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_K8_deploy.md)**
 * 📄 **[P2 Kubernetes Deployment Guide](./docs/p2_k8_deploy.md)**
 * 📄 **[P2 Kubernetes Post-Mortem](./docs/p2_post_mortem.md)**
+* 📄 **[P3 GKE Deployment Guide](./docs/p3_k8_deploy.md)**
 
 ---
 
