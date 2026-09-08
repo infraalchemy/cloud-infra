@@ -17,13 +17,14 @@ docker/*.log
 docker/moodledata/
 
 # Kubernetes
-kubernetes/php/*secret*.yaml
-kubernetes/nginx/*secret*.yml
-kubernetes/mysql/*secret*.yml
+kubernetes/kind/mysql/secret.yaml
+kubernetes/gcp-gke/mysql/secret.yaml
+kubernetes/gcp-gke/php/secret.yaml
 
 # Terraform
-terraform/.terraform/
-terraform/*.tfvars
-terraform/*.tfvars.json
-terraform/*.tfstate
-terraform/*.tfstate.backup
+# Terraform
+terraform/**/.terraform/
+terraform/**/*.tfvars
+terraform/**/*.tfvars.json
+terraform/**/*.tfstate
+terraform/**/*.tfstate.backup
