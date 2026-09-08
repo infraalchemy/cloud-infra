@@ -781,7 +781,30 @@ In the Google Cloud Console:
 1. Go to **Compute Engine → Disks**
 2. Check for any disks associated with the deleted environment
 3. Delete any disks that are no longer required
+4. delete repo
+check whether the Artifact Registry repository exists:
+gcloud artifacts repositories list \
+  --project civic-champion-439320-a5 \
+  --location northamerica-northeast2
+  
+check whether there are images inside it:
+gcloud artifacts docker images list \
+  northamerica-northeast2-docker.pkg.dev/civic-champion-439320-a5/moodle-repo
 
+Delete the old repository:  
+gcloud artifacts repositories delete moodle-repo \
+  --location=northamerica-northeast2 \
+  --project civic-champion-439320-a5
+  
+  results
+  Deleted repository [moodle-repo].
+
+Then verify:
+gcloud artifacts repositories list \
+  --project civic-champion-439320-a5 \
+  --location northamerica-northeast2
+results
+Listed 0 items.
 ---
 
 
