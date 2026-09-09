@@ -102,19 +102,23 @@ All infrastructure provisioning and application deployments were initiated from 
 │           └── managed-cert.yaml         # Google-managed SSL/TLS certificate
 │
 ├── terraform/                            # Google Cloud infrastructure provisioning
-│   ├── modules/                          # Reusable Terraform modules
-│   │   ├── gke/                          # Planned GKE resources
-│   │   └── vpc/                          # Planned VPC networking resources
-│   ├── main.tf                           # Terraform entry point
-│   ├── outputs.tf                        # Terraform outputs
-│   └── variables.tf                      # Terraform variables
-│
+│   ├── docker-compose/                   # P1: GCP VM infrastructure for Docker Compose
+│   │   ├── deploy.sh                     # P1 deployment script
+│   │   ├── main.tf                       # Compute Engine and firewall resources
+│   │   ├── outputs.tf                    # P1 Terraform outputs
+│   │   ├── providers.tf                  # Google provider configuration
+│   │   ├── startup.sh                    # VM startup and application deployment
+│   │   └── variables.tf                  # P1 Terraform variables
+│   │
+│   └── gcp-gke/                          # P3: GCP infrastructure for GKE
+│       ├── main.tf                       # GKE, Artifact Registry, static IP, and APIs
+│       ├── outputs.tf                    # GKE infrastructure outputs
+│       ├── providers.tf                  # Google provider configuration
+│       └── variables.tf                  # GCP project, region, and zone variables
 ├── Dockerfile                            # Root Moodle application image build
 ├── README.md                             # Project overview and deployment documentation
 └── .gitignore                            # Git ignore rules
-
 ```
-
 ---
 
 ## Project Documentation

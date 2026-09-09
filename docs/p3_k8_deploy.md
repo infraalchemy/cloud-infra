@@ -491,6 +491,15 @@ kubectl get pvc
 
 Configure the domain DNS record to point to the reserved static IP address.
 
+Verify the reserved static IP:
+```bash
+gcloud compute addresses describe moodle-static-ip --global --format="value(address)"
+```
+*Expected:*
+```text
+<Static IP>
+```
+
 Open the domain management console and navigate to the DNS records for the domain.
 
 Add an A record with the following configuration:
@@ -532,11 +541,12 @@ kubectl describe ingress moodle-ingress
 ```text
 Annotations:  ingress.kubernetes.io/backends:
                 {"k8s1-1c544d72-default-nginx-80-d46c5d31":"HEALTHY","k8s1-1c544d72-kube-system-default-http-backend-80-591b856c":"HEALTHY"}
-Events:
-  Type    Reason  Age                  From                     Message
-  ----    ------  ----                 ----                     -------
-  Normal  Sync    115s (x2 over 115s)  loadbalancer-controller  Scheduled for sync
+				kubernetes.io/ingress.class: gce
+				kubernetes.io/ingress.global-static-ip-name: moodle-static-ip
+				networking.gke.io/managed-certificates: moodle-ssl-cert
 ```
+*Note* GCE Ingress is being used, it's tied to Terraform-created moodle-static-ip, the managed certificate is attached, and Google considers the Nginx backend healthy.
+
 
 Wait for the Ingress to receive an external IP address:
 ```bash
@@ -579,7 +589,7 @@ HTTP/1.1 200 OK
 Run the Moodle CLI installer to create the database tables and complete the initial Moodle installation. Use the internal MySQL Cluster IP for `--dbhost` and `/moodledata` for `--dataroot`.
 
 Refresh the GKE cluster credentials:
-```bash
+```cloudshell
 gcloud container clusters get-credentials moodle-gke-cluster \
   --zone northamerica-northeast2-a
 ```
@@ -598,8 +608,8 @@ kubectl get svc mysql
 ## Run the Moodle CLI Installer
 
 Run the Moodle CLI installer from the PHP pod using the MySQL Cluster IP and static IP:
-```powershell
-kubectl exec -it (kubectl get pods -l app=php -o jsonpath='{.items[0].metadata.name}') -- php /var/www/html/admin/cli/install.php `
+```cloudshell
+kubectl exec -it (kubectl get pods -l app=php -o jsonpath='{.items[0].metadata.name}') -- php /var/www/html/admin/cli/install.php \
 --lang=en \
 --dbtype=mysqli \
 --dbhost="<DB IP>" \
@@ -773,38 +783,60 @@ gcloud compute addresses delete moodle-static-ip --global
 
 ---
 
-## Verify Persistent Disks
+## Verify Persistent Disks and Artifact Registry Cleanup
 
-Verify that no persistent disks remain after the environment has been deleted.
+After deleting the environment, verify that no persistent resources remain.
+
+### Verify Persistent Disks
+
 In the Google Cloud Console:
 
 1. Go to **Compute Engine → Disks**
 2. Check for any disks associated with the deleted environment
 3. Delete any disks that are no longer required
-4. delete repo
-check whether the Artifact Registry repository exists:
+
+### Verify Artifact Registry Repository
+
+Check whether the Artifact Registry repository still exists:
+
+```bash
 gcloud artifacts repositories list \
   --project civic-champion-439320-a5 \
   --location northamerica-northeast2
-  
-check whether there are images inside it:
+```
+
+If the repository exists, check whether it contains any Docker images:
+
+```bash
 gcloud artifacts docker images list \
   northamerica-northeast2-docker.pkg.dev/civic-champion-439320-a5/moodle-repo
+```
 
-Delete the old repository:  
+Delete the repository and all images stored within it:
+
+```bash
 gcloud artifacts repositories delete moodle-repo \
   --location=northamerica-northeast2 \
   --project civic-champion-439320-a5
-  
-  results
-  Deleted repository [moodle-repo].
+```
+*Expected:*
 
-Then verify:
+```text
+Deleted repository [moodle-repo].
+```
+
+Verify that the repository has been removed:
+
+```bash
 gcloud artifacts repositories list \
   --project civic-champion-439320-a5 \
   --location northamerica-northeast2
-results
+```
+*Expected:*
+
+```text
 Listed 0 items.
----
+```
+
 
 
